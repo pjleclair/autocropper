@@ -2,7 +2,7 @@
   "name": "autocropper",
   "version": "0.1.0",
   "private": true,
-  "homepage": "pjleclair.github.io/autocropper",
+  "homepage": "https://pjleclair.github.io/autocropper",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
