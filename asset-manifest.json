@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/pjleclair.github.io/autocropper/static/css/main.837a4baf.css",
+    "main.js": "/pjleclair.github.io/autocropper/static/js/main.33555320.js",
+    "index.html": "/pjleclair.github.io/autocropper/index.html",
+    "main.837a4baf.css.map": "/pjleclair.github.io/autocropper/static/css/main.837a4baf.css.map",
+    "main.33555320.js.map": "/pjleclair.github.io/autocropper/static/js/main.33555320.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.837a4baf.css",
+    "static/js/main.33555320.js"
+  ]
+}
