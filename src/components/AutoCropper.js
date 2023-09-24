@@ -24,22 +24,23 @@ const AutoCropper = () => {
 
             //if there are files (images), load faceapi models
             const loadModels = async () => {
-
+                
+                //set file path to faceapi models
                 const MODEL_URL = process.env.PUBLIC_URL + '/models'
 
-                Promise.all([
-                    // models getting from public/model directory
-                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
-                ])
-                    .then(console.log("success", "/models"))
-                    .then(
-                        //iterate through all of the image files and update state each time
-                        setModelsLoaded(true)
-                    )
-                    .catch((e) => console.error(e)); //catch and log errors
+                //try to load models
+                try {
+                    await Promise.all([
+                        // models getting from public/model directory
+                        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+                        faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
+                    ])
+                    console.log("success", "/models")
+                    //update state to indicate models are loaded
+                    setModelsLoaded(true)
+                } catch (e) {console.error(e)}; //catch and log errors
             }
             loadModels();
 
@@ -63,7 +64,7 @@ const AutoCropper = () => {
         setFiles(e.target.files)
     }
 
-    const cropPhoto = () => {
+    const cropPhoto = async () => {
         //take the current img and create a canvas, set as canvasRef
         canvasRef.current.innerHTML = faceapi.createCanvasFromMedia(
             imgRef.current
@@ -71,11 +72,29 @@ const AutoCropper = () => {
 
         //set displaySize (tbd)
         const displaySize = {
-            width: 250,
-            height: 250
+            width: 600,
+            height: 600
         }
 
+
+        //match dimensions and detect a face, then resize
+        faceapi.matchDimensions(canvasRef.current, displaySize)
+        const detections = await faceapi.detectSingleFace(
+            imgRef.current,
+            new faceapi.TinyFaceDetectorOptions()
+        )
+        const resizeDetections = faceapi.resizeResults(detections,displaySize)
         
+        //draw a rectangle on the canvas using detected face
+        canvasRef.current
+            .getContext("2d")
+            .clearRect(0,0,displaySize.width,displaySize.height)
+        faceapi.draw.drawDetections(canvasRef.current, resizeDetections)
+        
+        //log dimensions
+        console.log(
+            `Width ${detections.box._width} and Height ${detections.box._height}`
+        )
         
     }
 
@@ -85,9 +104,15 @@ const AutoCropper = () => {
 
     return(<div>
         <input onChange={handleUpload} name="files" type="file" multiple="multiple"/>
-        {currentImg && <img ref={imgRef} src={currentImg} onLoad={handleImgLoad} crossOrigin="anonymous"/>}
-        {currentImg && <canvas ref={canvasRef} />}
-        {/* after confirming crop is working: style={{display:'none'}} */}
+        <div style={{
+            display:'flex',
+            justifyContent:'center',
+
+        }}>
+            {currentImg && <img ref={imgRef} src={currentImg} onLoad={handleImgLoad} crossOrigin="anonymous" alt='headshot'/>}
+            {currentImg && <canvas ref={canvasRef} style={{position:'absolute'}}/>}
+            {/* after confirming crop is working: style={{display:'none'}} */}
+        </div>
     </div>)
 }
 
