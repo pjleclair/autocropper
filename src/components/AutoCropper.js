@@ -9,6 +9,7 @@ const AutoCropper = () => {
     //initialize state
     const [files, setFiles] = useState(null)
     const [currentImg, setCurrentImg] = useState('')
+    const [imgName, setImgName] = useState('')
     const [modelsLoaded, setModelsLoaded] = useState(false)
     const [headshot, setHeadShot] = useState('')
 
@@ -20,6 +21,8 @@ const AutoCropper = () => {
     //effect fires on files change
     useEffect(() => {
         setHeadShot('')
+        setCurrentImg('')
+        setImgName('')
         //since effects fire on first render, check if files is valid
         if (files !== null) {
 
@@ -52,10 +55,16 @@ const AutoCropper = () => {
         if (modelsLoaded) {
             Array.from(files).forEach((img) => {
                 console.log(img)
+                setImgName(img.name)
                 setCurrentImg(URL.createObjectURL(img))
             })
         }
     },[modelsLoaded,files])
+
+    useEffect(() => {
+        if (headshot !== '')
+            savePhoto(headshot)
+    },[headshot])
 
     const handleImgLoad = () => {
         cropPhoto()
@@ -73,8 +82,8 @@ const AutoCropper = () => {
 
         //set displaySize (tbd)
         const displaySize = {
-            width: 600,
-            height: 600
+            width: 500,
+            height: 500
         }
 
 
@@ -113,23 +122,32 @@ const AutoCropper = () => {
     }
 
     const extractFaceFromBox = async (imgRef, box) => {
+        //draw rectangle using box dimensions from detected face, adjusted
         const regionsToExtract = [
             new faceapi.Rect(box.x-100,box.y-125,box.width+200,box.height+200)
         ]
+
+        //extract face
         let faceImages = await faceapi.extractFaces(imgRef,regionsToExtract)
+        
+        //if no face, log error, otherwise set headshot to extracted face(s) and log it
         if (faceImages.length === 0) {
             console.log('No face found :(')
         } else {
             faceImages.forEach((cnv) => {
                 setHeadShot(cnv.toDataURL())
             })
-            console.log('Face found:')
-            console.log(headshot)
+            console.log('Face found')
         }
     }
 
-    const savePhoto = () => {
-
+    const savePhoto = async (img) => {
+        const link = document.createElement('a')
+        link.href = img
+        link.download = imgName
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
     }
 
     return(<div>
