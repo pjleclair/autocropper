@@ -11,7 +11,6 @@ const AutoCropper = () => {
     const [fileIndex,setFileIndex] = useState(null)
     const [currentImg, setCurrentImg] = useState('')
     const [imgName, setImgName] = useState([])
-    const [modelsLoaded, setModelsLoaded] = useState(false)
     const [headshots, setHeadShots] = useState([])
 
     //initialize canvas & image refs
@@ -38,7 +37,6 @@ const AutoCropper = () => {
                 ])
                 console.log("success", "/models")
                 //update state to indicate models are loaded
-                setModelsLoaded(true)
             } catch (e) {console.error(e)}; //catch and log errors
         }
         loadModels();
@@ -55,18 +53,13 @@ const AutoCropper = () => {
                         console.log('error in handleImgLoad')
                     }
                     setHeadShots(prevHeadshots => [...prevHeadshots,...newHeadshots].flat())
+                    setFileIndex(prevFileIndex => prevFileIndex + 1)
                 }
             }
         } catch (e) {
             console.log('loading image failed',e)
         }
     },[currentImg])
-
-    useEffect(()=>{
-        if (headshots.length > 0) {
-            setFileIndex(prevFileIndex => prevFileIndex + 1)
-        }
-    },[headshots])
 
     useEffect(() => {
         if (fileIndex !== null)
@@ -80,7 +73,6 @@ const AutoCropper = () => {
                 resolve(headshots)
             } catch (e) {
                 console.error("Fail at cropPhoto",e)
-                resolve('')
             }
         })
     }
@@ -99,10 +91,9 @@ const AutoCropper = () => {
 
             //set displaySize (tbd)
             const displaySize = {
-                width: 250,
-                height: 250
+                width: 500,
+                height: 500
             }
-
 
             //match dimensions and detect a face, then resize
             faceapi.matchDimensions(canvasRef.current, displaySize)
@@ -131,9 +122,9 @@ const AutoCropper = () => {
                 resolve(headshots)
             } else {
                 console.log(
-                    `Error! No face detected.`
+                    `Error! No face detected in ${currentImg}`
                 )
-                resolve('')
+                resolve([])
             }
         })
     }
