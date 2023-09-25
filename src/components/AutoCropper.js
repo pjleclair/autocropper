@@ -83,18 +83,28 @@ const AutoCropper = () => {
             imgRef.current,
             new faceapi.TinyFaceDetectorOptions()
         )
-        const resizeDetections = faceapi.resizeResults(detections,displaySize)
+
+        //if a face is detected, draw a rectangle and log dimensions
+        if (detections !== undefined) {
+            const resizeDetections = faceapi.resizeResults(detections,displaySize)
         
-        //draw a rectangle on the canvas using detected face
-        canvasRef.current
-            .getContext("2d")
-            .clearRect(0,0,displaySize.width,displaySize.height)
-        faceapi.draw.drawDetections(canvasRef.current, resizeDetections)
+            //draw a rectangle on the canvas using detected face
+            canvasRef.current
+                .getContext("2d")
+                .clearRect(0,0,displaySize.width,displaySize.height)
+            faceapi.draw.drawDetections(canvasRef.current, resizeDetections)
+            
+            //log dimensions
+            console.log(
+                `Width ${detections.box._width} and Height ${detections.box._height}`
+            )
+        } else {
+            console.log(
+                `Error! No face detected.`
+            )
+        }
         
-        //log dimensions
-        console.log(
-            `Width ${detections.box._width} and Height ${detections.box._height}`
-        )
+        
         
     }
 
