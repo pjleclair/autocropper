@@ -10,6 +10,7 @@ const AutoCropper = () => {
     const [files, setFiles] = useState(null)
     const [currentImg, setCurrentImg] = useState('')
     const [modelsLoaded, setModelsLoaded] = useState(false)
+    const [headshot, setHeadShot] = useState('')
 
     //initialize canvas & image refs
     const canvasRef = useRef()
@@ -98,6 +99,9 @@ const AutoCropper = () => {
             console.log(
                 `Width ${detections.box._width} and Height ${detections.box._height}`
             )
+
+            //extract face from drawn rectangle
+            extractFaceFromBox(imgRef.current, detections.box)
         } else {
             console.log(
                 `Error! No face detected.`
@@ -106,6 +110,22 @@ const AutoCropper = () => {
         
         
         
+    }
+
+    const extractFaceFromBox = async (imgRef, box) => {
+        const regionsToExtract = [
+            new faceapi.Rect(box.x-100,box.y-125,box.width+200,box.height+200)
+        ]
+        let faceImages = await faceapi.extractFaces(imgRef,regionsToExtract)
+        if (faceImages.length === 0) {
+            console.log('No face found :(')
+        } else {
+            faceImages.forEach((cnv) => {
+                setHeadShot(cnv.toDataURL())
+            })
+            console.log('Face found:')
+            console.log(headshot)
+        }
     }
 
     const savePhoto = () => {
@@ -123,6 +143,7 @@ const AutoCropper = () => {
             {currentImg && <canvas ref={canvasRef} style={{position:'absolute'}}/>}
             {/* after confirming crop is working: style={{display:'none'}} */}
         </div>
+        {headshot && <img src={headshot}/>}
     </div>)
 }
 
