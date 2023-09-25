@@ -19,7 +19,7 @@ const AutoCropper = () => {
 
     //effect fires on files change
     useEffect(() => {
-
+        setHeadShot('')
         //since effects fire on first render, check if files is valid
         if (files !== null) {
 
