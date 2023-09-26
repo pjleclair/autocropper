@@ -99,8 +99,8 @@ const AutoCropper = () => {
 
             //set displaySize (tbd)
             const displaySize = {
-                width: 250,
-                height: 250
+                width: imgRef.current.width,
+                height: imgRef.current.height
             }
 
             //match dimensions and detect a face, then resize
@@ -113,7 +113,8 @@ const AutoCropper = () => {
             //if a face is detected, draw a rectangle and log dimensions
             if (detections !== undefined) {
                 const resizeDetections = faceapi.resizeResults(detections,displaySize)
-            
+                console.log(resizeDetections.box)
+                console.log(detections.box)
                 //draw a rectangle on the canvas using detected face
                 canvasRef.current
                     .getContext("2d")
@@ -125,8 +126,16 @@ const AutoCropper = () => {
                     `Width ${detections.box._width} and Height ${detections.box._height}`
                 )
 
+                const maxSize = Math.max(detections.box.width,detections.box.height)
+
+
                 //extract face from drawn rectangle
-                const headshots = await extractFaceFromBox(imgRef.current, detections.box)
+                const headshots = await extractFaceFromBox(imgRef.current, {
+                    x: detections.box.x - (maxSize - detections.box.width) / 2,
+                    y: detections.box.y - (maxSize - detections.box.height) / 2,
+                    width: maxSize,
+                    height: maxSize
+                })
                 resolve(headshots)
             } else {
                 console.log(
@@ -202,12 +211,13 @@ const AutoCropper = () => {
             <canvas ref={canvasRef} style={{position:'absolute',display:'none'}}/>
             {/* after confirming crop is working: style={{display:'none'}} */}
         </div>
-        {isProcessed && <h2 style={{color:'green'}}>File processing completed!</h2>}
+        {(isProcessed && headshots.length > 0) ? <h2 style={{color:'green'}}>File processing completed!</h2>
+        : (isProcessed && <h2 style={{color:'red'}}>No faces detected.</h2>)}
         {(errFiles.length > 0) &&
             <div>Unable to detect a face in the following files:
                 <ul>
-                    {errFiles.map((name)=>{
-                        return <li>{name}</li>
+                    {errFiles.map((name,i)=>{
+                        return <li key={i}>{name}</li>
                     })}
                 </ul>
             </div>}
