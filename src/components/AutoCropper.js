@@ -228,7 +228,7 @@ const AutoCropper = () => {
                     border:'5px solid #00B6AC',
                     borderRadius:'8px'
                 }}>
-                    {headshots.map((img,i) => <img key={i} src={img} alt='headshot'/>)}
+                    {headshots.map((img,i) => <img key={i} src={img} alt='headshot' style={{width:'250px',height:'250px'}}/>)}
                 </div>
             </div>
         }
