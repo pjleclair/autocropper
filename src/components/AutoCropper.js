@@ -11,6 +11,8 @@ const AutoCropper = () => {
     const [fileIndex,setFileIndex] = useState(null)
     const [currentImg, setCurrentImg] = useState('')
     const [imgName, setImgName] = useState([])
+    const [errFiles, setErrFiles] = useState([])
+    const [isProcessed, setIsProcessed] = useState(false)
     const [headshots, setHeadShots] = useState([])
 
     //initialize canvas & image refs
@@ -55,6 +57,9 @@ const AutoCropper = () => {
                     if (newHeadshots.length > 0) {
                         const newImgName = (files[fileIndex].name.split('.'))[0]
                         setImgName(prevState => [...prevState,newImgName])
+                    } else {
+                        const newImgName = (files[fileIndex].name)
+                        setErrFiles(prevState => [...prevState,newImgName])
                     }
                     setFileIndex(prevFileIndex => prevFileIndex + 1)
                 }
@@ -180,6 +185,8 @@ const AutoCropper = () => {
             //update currentImg url and add file name to imgs
             const url = URL.createObjectURL(files[fileIndex])
             setCurrentImg(url)
+        } else if ((files !== null) && (fileIndex == files.length)) {
+            setIsProcessed(true)
         }
     }
 
@@ -195,7 +202,21 @@ const AutoCropper = () => {
             <canvas ref={canvasRef} style={{position:'absolute',display:'none'}}/>
             {/* after confirming crop is working: style={{display:'none'}} */}
         </div>
-        {(headshots.length > 0) && headshots.map((img,i) => <img key={i} src={img}/>)}
+        {isProcessed && <h2 style={{color:'green'}}>File processing completed!</h2>}
+        {(errFiles.length > 0) &&
+            <div>Unable to detect a face in the following files:
+                <ul>
+                    {errFiles.map((name)=>{
+                        return <li>{name}</li>
+                    })}
+                </ul>
+            </div>}
+        {(headshots.length > 0) && 
+            <div>
+                <h2>Headshots:</h2>
+                {headshots.map((img,i) => <img key={i} src={img}/>)}
+            </div>
+        }
     </div>)
 }
 
