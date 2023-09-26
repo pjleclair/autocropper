@@ -123,9 +123,15 @@ const AutoCropper = () => {
 
             const box = detections.box
 
+            const horizontalMarginPercentage = 25
+            const verticalMarginperentage = 25
+
+            const imageWidth = imgRef.current.width
+            const imageHeight = imgRef.current.height
+
             //define margins
-            const horizontalMargin = 100
-            const verticalMargin = 100
+            const horizontalMargin = (imageWidth * horizontalMarginPercentage) / 100
+            const verticalMargin = (imageHeight * verticalMarginperentage) / 100
 
             //calculate cropping dimensions with margins
             const targetSize = Math.min(box.width + 2 * horizontalMargin, box.height + 2 * verticalMargin)
