@@ -43,7 +43,10 @@ const AutoCropper = () => {
         loadModels();
     },[])
 
-    useEffect(()=>{
+    useEffect(() => {
+        //when new image is loaded, crop photos and update state
+        //if face is detected, add img name to state for filename when saving
+        //otherwise, add filename to err state for display
         try {
             if (imgRef.current){
                 imgRef.current.onload = async () => {
@@ -61,20 +64,25 @@ const AutoCropper = () => {
                         const newImgName = (files[fileIndex].name)
                         setErrFiles(prevState => [...prevState,newImgName])
                     }
+                    //increment file index to process next img (if it exists)
                     setFileIndex(prevFileIndex => prevFileIndex + 1)
                 }
             }
         } catch (e) {
             console.log('loading image failed',e)
         }
+        //eslint-disable-next-line
     },[currentImg])
 
     useEffect(() => {
+        //if file index is initialized, process images
         if (fileIndex !== null)
             processImages()
+        //eslint-disable-next-line
     },[fileIndex])
 
     const handleImgLoad = async () => {
+        //crop photos and return headshots, or log error
         return new Promise(async (resolve,reject)=>{
             try {
                 const headshots = await cropPhoto()
@@ -86,106 +94,89 @@ const AutoCropper = () => {
     }
 
     const handleUpload = (e) => {
+        //on file upload, update state with new files and reset index
         setFiles(e.target.files)
         setFileIndex(0)
     }
 
     const cropPhoto = async () => {
-        return new Promise(async (resolve,reject) => {
-            //take the current img and create a canvas, set as canvasRef
-            canvasRef.current.innerHTML = faceapi.createCanvasFromMedia(
-                imgRef.current
-            )
+        //take the current img and create a canvas, set as canvasRef
+        canvasRef.current.innerHTML = faceapi.createCanvasFromMedia(
+            imgRef.current
+        )
 
-            //set displaySize (tbd)
-            const displaySize = {
-                width: imgRef.current.width,
-                height: imgRef.current.height
-            }
+        //set max crop dimensions
+        const displaySize = {
+            width: 500,
+            height: 500
+        }
 
-            //match dimensions and detect a face, then resize
-            faceapi.matchDimensions(canvasRef.current, displaySize)
-            const detections = await faceapi.detectSingleFace(
+        //match dimensions and detect a face, then resize
+        faceapi.matchDimensions(canvasRef.current, displaySize)
+        const detections = await faceapi.detectSingleFace(
+            imgRef.current,
+            new faceapi.TinyFaceDetectorOptions()
+        )
+
+        //if a face is detected, crop and return headshots
+        if (detections !== undefined) {
+
+            const box = detections.box
+
+            //define margins
+            const horizontalMargin = 100
+            const verticalMargin = 100
+
+            //calculate cropping dimensions with margins
+            const targetSize = Math.min(box.width + 2 * horizontalMargin, box.height + 2 * verticalMargin)
+
+            const cropWidth = targetSize
+            const cropHeight = targetSize
+
+            //calculate center of the detected face
+            const centerX = box.x + box.width / 2
+            const centerY = box.y + box.height / 2
+
+            //calculate the top-left corner of the cropped region 
+            const x = Math.max(centerX - cropWidth / 2, 0)
+            const y = Math.max(centerY - cropHeight / 2, 0)
+
+            const tempCanvas = document.createElement('canvas')
+            tempCanvas.width = cropWidth
+            tempCanvas.height = cropHeight
+
+            const tempContext = tempCanvas.getContext('2d')
+            tempContext.drawImage(
                 imgRef.current,
-                new faceapi.TinyFaceDetectorOptions()
+                x, y, cropWidth, cropHeight,
+                0, 0, cropWidth, cropHeight
             )
 
-            //if a face is detected, draw a rectangle and log dimensions
-            if (detections !== undefined) {
-                const resizeDetections = faceapi.resizeResults(detections,displaySize)
-                console.log(resizeDetections.box)
-                console.log(detections.box)
-                //draw a rectangle on the canvas using detected face
-                canvasRef.current
-                    .getContext("2d")
-                    .clearRect(0,0,displaySize.width,displaySize.height)
-                faceapi.draw.drawDetections(canvasRef.current, resizeDetections)
-                
-                //log dimensions
-                console.log(
-                    `Width ${detections.box._width} and Height ${detections.box._height}`
-                )
-
-                const maxSize = Math.max(detections.box.width,detections.box.height)
-
-
-                //extract face from drawn rectangle
-                const headshots = await extractFaceFromBox(imgRef.current, {
-                    x: detections.box.x - (maxSize - detections.box.width) / 2,
-                    y: detections.box.y - (maxSize - detections.box.height) / 2,
-                    width: maxSize,
-                    height: maxSize
-                })
-                resolve(headshots)
-            } else {
-                console.log(
-                    `Error! No face detected in ${currentImg}`
-                )
-                resolve([])
-            }
-        })
-    }
-
-    const extractFaceFromBox = async (imgRef, box) => {
-        return new Promise (async (resolve,reject) => {
-            //draw rectangle using box dimensions from detected face, adjusted
-            const regionsToExtract = [
-                new faceapi.Rect(box.x-50,box.y-125,box.width+100,box.height+150)
-            ]
-
-            //extract face
-            let faceImages = await faceapi.extractFaces(imgRef,regionsToExtract)
-            
-            //if no face, log error, otherwise set headshot to extracted face(s) and log it
-            if (faceImages.length === 0) {
-                console.log('No face found :(')
-                resolve([])
-            } else {
-                const newHeadshots = []
-                faceImages.forEach((cnv) => {
-                    newHeadshots.push(cnv.toDataURL())
-                })
-                console.log('Face found')
-                resolve(newHeadshots)
-            }
-        })
+            const headshots = [tempCanvas.toDataURL()]
+            return headshots
+        } else {
+            console.log(
+                `Error! No face detected in ${currentImg}`
+            )
+            return []
+        }
     }
 
     const savePhotos = async (headshots) => {
-        return new Promise(async (resolve,reject)=>{
-            let i = 0
-            for (let img of headshots) {
-                console.log(img)
-                const link = document.createElement('a')
-                link.href = img
-                link.download = imgName[i] + '-cropped'
-                document.body.appendChild(link)
-                link.click()
-                document.body.removeChild(link)
-                i++
-            }
-            resolve()
-        })
+        //iterate through all headshots saved in state
+        //take string and append "-cropped" to filename
+        //save img
+        let i = 0
+        for (let img of headshots) {
+            console.log(img)
+            const link = document.createElement('a')
+            link.href = img
+            link.download = imgName[i] + '-cropped'
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            i++
+        }
     }
 
     const processImages = async () => {
@@ -194,7 +185,7 @@ const AutoCropper = () => {
             //update currentImg url and add file name to imgs
             const url = URL.createObjectURL(files[fileIndex])
             setCurrentImg(url)
-        } else if ((files !== null) && (fileIndex == files.length)) {
+        } else if ((files !== null) && (fileIndex === files.length)) {
             setIsProcessed(true)
         }
     }
@@ -207,7 +198,7 @@ const AutoCropper = () => {
             justifyContent:'center',
 
         }}>
-            <img ref={imgRef} src={currentImg} style={{display:'none'}} crossOrigin="anonymous" alt='headshot'/>
+            <img ref={imgRef} src={currentImg} style={{display:'none'}} crossOrigin="anonymous" alt='original'/>
             <canvas ref={canvasRef} style={{position:'absolute',display:'none'}}/>
             {/* after confirming crop is working: style={{display:'none'}} */}
         </div>
@@ -224,7 +215,7 @@ const AutoCropper = () => {
         {(headshots.length > 0) && 
             <div>
                 <h2>Headshots:</h2>
-                {headshots.map((img,i) => <img key={i} src={img}/>)}
+                {headshots.map((img,i) => <img key={i} src={img} alt='headshot'/>)}
             </div>
         }
     </div>)
