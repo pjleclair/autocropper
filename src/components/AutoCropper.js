@@ -20,7 +20,7 @@ const AutoCropper = () => {
 
     //effect fires on first render
     useEffect(() => {
-        //if there are files (images), load faceapi models
+        //load faceapi models
         const loadModels = async () => {
             
             //set file path to faceapi models
@@ -36,7 +36,6 @@ const AutoCropper = () => {
                     faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
                 ])
                 console.log("success", "/models")
-                //update state to indicate models are loaded
             } catch (e) {console.error(e)}; //catch and log errors
         }
         loadModels();
