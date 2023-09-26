@@ -52,6 +52,10 @@ const AutoCropper = () => {
                         console.log('error in handleImgLoad')
                     }
                     setHeadShots(prevHeadshots => [...prevHeadshots,...newHeadshots].flat())
+                    if (newHeadshots.length > 0) {
+                        const newImgName = (files[fileIndex].name.split('.'))[0]
+                        setImgName(prevState => [...prevState,newImgName])
+                    }
                     setFileIndex(prevFileIndex => prevFileIndex + 1)
                 }
             }
@@ -90,8 +94,8 @@ const AutoCropper = () => {
 
             //set displaySize (tbd)
             const displaySize = {
-                width: 500,
-                height: 500
+                width: 250,
+                height: 250
             }
 
             //match dimensions and detect a face, then resize
@@ -172,16 +176,10 @@ const AutoCropper = () => {
 
     const processImages = async () => {
         if ((fileIndex !== null) && (fileIndex < files.length)) {
-            // const loadingImgsPromise = Array.from(files).map(async (img) => {
-            //     setCurrentImg(URL.createObjectURL(img))
-
-            //     newImgNames.push(img.name.split('.')[0])
-            // })
-            // await Promise.all(loadingImgsPromise)
+            //if file index is initiated and not beyond length of files,
+            //update currentImg url and add file name to imgs
             const url = URL.createObjectURL(files[fileIndex])
             setCurrentImg(url)
-            const newImgName = (files[fileIndex].name.split('.'))[0]
-            setImgName(newImgName)
         }
     }
 
@@ -193,8 +191,8 @@ const AutoCropper = () => {
             justifyContent:'center',
 
         }}>
-            {currentImg && <img ref={imgRef} src={currentImg} crossOrigin="anonymous" alt='headshot'/>}
-            {currentImg && <canvas ref={canvasRef} style={{position:'absolute'}}/>}
+            <img ref={imgRef} src={currentImg} style={{display:'none'}} crossOrigin="anonymous" alt='headshot'/>
+            <canvas ref={canvasRef} style={{position:'absolute',display:'none'}}/>
             {/* after confirming crop is working: style={{display:'none'}} */}
         </div>
         {(headshots.length > 0) && headshots.map((img,i) => <img key={i} src={img}/>)}
