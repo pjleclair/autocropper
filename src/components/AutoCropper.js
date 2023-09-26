@@ -190,9 +190,18 @@ const AutoCropper = () => {
         }
     }
 
-    return(<div>
-        <input onChange={handleUpload} name="files" type="file" multiple="multiple"/>
-        {(headshots.length > 0) && <button onClick={()=>{savePhotos(headshots)}}>Save</button>}
+    return(<div style={{
+        display:'flex',
+        flexDirection:'column',
+        alignItems:'center'
+    }}>
+        <div style={{
+            display:'flex',
+            gap:'1rem'
+        }}>
+            <input onChange={handleUpload} name="files" type="file" multiple="multiple"/>
+            {(headshots.length > 0) && <button onClick={()=>{savePhotos(headshots)}}>Save</button>}
+        </div>
         <div style={{
             display:'flex',
             justifyContent:'center',
@@ -202,7 +211,7 @@ const AutoCropper = () => {
             <canvas ref={canvasRef} style={{position:'absolute',display:'none'}}/>
             {/* after confirming crop is working: style={{display:'none'}} */}
         </div>
-        {(isProcessed && headshots.length > 0) ? <h2 style={{color:'green'}}>File processing completed!</h2>
+        {(isProcessed && headshots.length > 0) ? <h2 style={{color:"#00B6AC"}}>File processing completed!</h2>
         : (isProcessed && <h2 style={{color:'red'}}>No faces detected.</h2>)}
         {(errFiles.length > 0) &&
             <div>Unable to detect a face in the following files:
@@ -214,8 +223,13 @@ const AutoCropper = () => {
             </div>}
         {(headshots.length > 0) && 
             <div>
-                <h2>Headshots:</h2>
-                {headshots.map((img,i) => <img key={i} src={img} alt='headshot'/>)}
+                <h2 style={{color:"#00B6AC"}}>Headshots:</h2>
+                <div style={{
+                    border:'5px solid #00B6AC',
+                    borderRadius:'8px'
+                }}>
+                    {headshots.map((img,i) => <img key={i} src={img} alt='headshot'/>)}
+                </div>
             </div>
         }
     </div>)

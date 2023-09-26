@@ -4,3 +4,40 @@
     flex-direction: column;
     align-items: center;
 }
+
+body {
+    background-color: #DCDCDC;
+}
+
+button,input {
+    
+    display: inline-block;
+    outline: none;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 3px;
+    padding: 12px 24px;
+    border: 0;
+    color: #fff;
+    background: #000a47;
+    line-height: 1.15;
+    font-size: 16px;
+}
+
+button:hover {
+    transition: all .1s ease;
+    box-shadow: 0 0 0 0 #fff, 0 0 0 3px #00B6AC;
+}
+
+input::-webkit-file-upload-button {
+    background: none;
+    color:#FFFFFF;
+    border: 2px inset #00B6AC;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+input::-webkit-file-upload-button:hover {
+    transition: all .1s ease;
+    box-shadow: 0 0 0 0 #fff, 0 0 0 3px #00B6AC;
+}
