@@ -177,7 +177,7 @@ const AutoCropper = () => {
             console.log(img)
             const link = document.createElement('a')
             link.href = img
-            link.download = imgName[i] + '-cropped'
+            link.download = 'cropped-'+imgName[i]
             document.body.appendChild(link)
             link.click()
             document.body.removeChild(link)
