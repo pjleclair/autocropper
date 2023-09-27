@@ -123,8 +123,8 @@ const AutoCropper = () => {
 
             const box = detections.box
 
-            const horizontalMarginPercentage = 25
-            const verticalMarginperentage = 25
+            const horizontalMarginPercentage = 30
+            const verticalMarginperentage = 30
 
             const imageWidth = imgRef.current.width
             const imageHeight = imgRef.current.height
