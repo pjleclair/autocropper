@@ -14,6 +14,7 @@ const AutoCropper = () => {
     const [errFiles, setErrFiles] = useState([])
     const [isProcessed, setIsProcessed] = useState(false)
     const [headshots, setHeadShots] = useState([])
+    const [marginVals, setMarginVals] = useState({vertical:15,horizontal:25})
 
     //initialize canvas & image refs
     const canvasRef = useRef()
@@ -96,7 +97,6 @@ const AutoCropper = () => {
     const handleUpload = (e) => {
         //on file upload, update state with new files and reset index
         setFiles(e.target.files)
-        setFileIndex(0)
     }
 
     const cropPhoto = async () => {
@@ -123,8 +123,8 @@ const AutoCropper = () => {
 
             const box = detections.box
 
-            const horizontalMarginPercentage = 30
-            const verticalMarginperentage = 30
+            const horizontalMarginPercentage = marginVals.horizontal
+            const verticalMarginperentage = marginVals.vertical
 
             const imageWidth = imgRef.current.width
             const imageHeight = imgRef.current.height
@@ -201,17 +201,37 @@ const AutoCropper = () => {
         flexDirection:'column',
         alignItems:'center'
     }}>
+        <h1 style={{color:"#063A7F"}}>Upload images below to get started:</h1>
         <div style={{
             display:'flex',
             gap:'1rem'
         }}>
             <input onChange={handleUpload} name="files" type="file" multiple="multiple"/>
-            {(headshots.length > 0) && <button onClick={()=>{savePhotos(headshots)}}>Save</button>}
+            <button onClick={()=>{
+                setHeadShots([])
+                setErrFiles([])
+                setFileIndex(0)
+            }}>Crop Headshots</button>
+            {(headshots.length > 0) && <button onClick={()=>{savePhotos(headshots)}}>Download</button>}
+        </div>
+        <br />
+        <div>
+            <div style={{display: 'flex', gap: '1rem'}}>
+                <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.5rem'}}>
+                    <div>Horizontal margin:</div>
+                    <input onChange={e => setMarginVals({...marginVals, horizontal: e.target.value})}
+                        name="marginVals.horizontal" value={marginVals.horizontal} id='margin' />
+                </div>
+                <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.5rem'}}>
+                    <div>Vertical margin:</div>
+                    <input onChange={e => setMarginVals({...marginVals, vertical: e.target.value})}
+                        name="marginVals.vertical" value={marginVals.vertical} id='margin' />
+                </div>
+            </div>
         </div>
         <div style={{
             display:'flex',
             justifyContent:'center',
-
         }}>
             <img ref={imgRef} src={currentImg} style={{display:'none'}} crossOrigin="anonymous" alt='original'/>
             <canvas ref={canvasRef} style={{position:'absolute',display:'none'}}/>

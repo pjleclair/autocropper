@@ -41,3 +41,7 @@ input::-webkit-file-upload-button:hover {
     transition: all .1s ease;
     box-shadow: 0 0 0 0 #fff, 0 0 0 3px #00B6AC;
 }
+
+input[id='margin'] {
+    width: 1.25rem;
+}
