@@ -16,6 +16,7 @@ const AutoCropper = () => {
     const [isProcessed, setIsProcessed] = useState(false)
     const [headshots, setHeadShots] = useState([])
     const [marginVals, setMarginVals] = useState({vertical:15,horizontal:25})
+    const [yAxisOffset, setYAxisOffset] = useState(.6)
 
     //initialize canvas & image refs
     const canvasRef = useRef()
@@ -147,7 +148,9 @@ const AutoCropper = () => {
 
             //calculate the top-left corner of the cropped region 
             const x = Math.max(centerX - cropWidth / 2, 0)
-            const y = Math.max(centerY - cropHeight / 2, 0)
+            // const y = Math.max(centerY - cropHeight / 2, 0)
+
+            const desiredY = Math.max(centerY - cropHeight * yAxisOffset, 0)
 
             const tempCanvas = document.createElement('canvas')
             tempCanvas.width = cropWidth
@@ -156,7 +159,7 @@ const AutoCropper = () => {
             const tempContext = tempCanvas.getContext('2d')
             tempContext.drawImage(
                 imgRef.current,
-                x, y, cropWidth, cropHeight,
+                x, desiredY, cropWidth, cropHeight,
                 0, 0, cropWidth, cropHeight
             )
 
@@ -231,14 +234,19 @@ const AutoCropper = () => {
         <div>
             <div style={{display: 'flex', gap: '1rem'}}>
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.5rem'}}>
-                    <div>Horizontal margin:</div>
+                    <div>Horizontal Margin:</div>
                     <input onChange={e => setMarginVals({...marginVals, horizontal: e.target.value})}
                         name="marginVals.horizontal" value={marginVals.horizontal} id='margin' />
                 </div>
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.5rem'}}>
-                    <div>Vertical margin:</div>
+                    <div>Vertical Margin:</div>
                     <input onChange={e => setMarginVals({...marginVals, vertical: e.target.value})}
                         name="marginVals.vertical" value={marginVals.vertical} id='margin' />
+                </div>
+                <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.5rem'}}>
+                    <div>Y-Axis Offset:</div>
+                    <input onChange={e => setYAxisOffset(e.target.value)}
+                        name="yAxisOffset" value={yAxisOffset} id='margin' />
                 </div>
             </div>
         </div>
