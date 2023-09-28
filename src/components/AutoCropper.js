@@ -226,6 +226,7 @@ const AutoCropper = () => {
             <button onClick={()=>{
                 setHeadShots([])
                 setErrNames([])
+                setErrFiles([])
                 setFileIndex(0)
             }}>Crop Headshots</button>
             {(headshots.length > 0) && <button onClick={()=>{savePhotos(headshots,errFiles)}}>Download</button>}
