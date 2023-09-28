@@ -193,7 +193,7 @@ const AutoCropper = () => {
         for (let img of errFiles) {
             const link = document.createElement('a')
             link.href = img
-            link.download = 'failed-'+errNames[i]
+            link.download = 'original-'+errNames[i]
             document.body.appendChild(link)
             link.click()
             document.body.removeChild(link)
