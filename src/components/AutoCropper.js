@@ -11,6 +11,7 @@ const AutoCropper = () => {
     const [fileIndex,setFileIndex] = useState(null)
     const [currentImg, setCurrentImg] = useState('')
     const [imgName, setImgName] = useState([])
+    const [errNames, setErrNames] = useState([])
     const [errFiles, setErrFiles] = useState([])
     const [isProcessed, setIsProcessed] = useState(false)
     const [headshots, setHeadShots] = useState([])
@@ -63,7 +64,8 @@ const AutoCropper = () => {
                         setImgName(prevState => [...prevState,newImgName])
                     } else {
                         const newImgName = (files[fileIndex].name)
-                        setErrFiles(prevState => [...prevState,newImgName])
+                        setErrNames(prevState => [...prevState,newImgName])
+                        setErrFiles(prevErrFiles => [...prevErrFiles,URL.createObjectURL(files[fileIndex])].flat())
                     }
                     //increment file index to process next img (if it exists)
                     setFileIndex(prevFileIndex => prevFileIndex + 1)
@@ -124,14 +126,14 @@ const AutoCropper = () => {
             const box = detections.box
 
             const horizontalMarginPercentage = marginVals.horizontal
-            const verticalMarginperentage = marginVals.vertical
+            const verticalMarginpercentage = marginVals.vertical
 
             const imageWidth = imgRef.current.width
             const imageHeight = imgRef.current.height
 
             //define margins
             const horizontalMargin = (imageWidth * horizontalMarginPercentage) / 100
-            const verticalMargin = (imageHeight * verticalMarginperentage) / 100
+            const verticalMargin = (imageHeight * verticalMarginpercentage) / 100
 
             //calculate cropping dimensions with margins
             const targetSize = Math.min(box.width + 2 * horizontalMargin, box.height + 2 * verticalMargin)
@@ -164,11 +166,12 @@ const AutoCropper = () => {
             console.log(
                 `Error! No face detected in ${currentImg}`
             )
+            
             return []
         }
     }
 
-    const savePhotos = async (headshots) => {
+    const savePhotos = async (headshots,errFiles) => {
         //iterate through all headshots saved in state
         //take string and append "-cropped" to filename
         //save img
@@ -178,6 +181,16 @@ const AutoCropper = () => {
             const link = document.createElement('a')
             link.href = img
             link.download = 'cropped-'+imgName[i]
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            i++
+        }
+        i = 0
+        for (let img of errFiles) {
+            const link = document.createElement('a')
+            link.href = img
+            link.download = 'failed-'+errNames[i]
             document.body.appendChild(link)
             link.click()
             document.body.removeChild(link)
@@ -209,10 +222,10 @@ const AutoCropper = () => {
             <input onChange={handleUpload} name="files" type="file" multiple="multiple"/>
             <button onClick={()=>{
                 setHeadShots([])
-                setErrFiles([])
+                setErrNames([])
                 setFileIndex(0)
             }}>Crop Headshots</button>
-            {(headshots.length > 0) && <button onClick={()=>{savePhotos(headshots)}}>Download</button>}
+            {(headshots.length > 0) && <button onClick={()=>{savePhotos(headshots,errFiles)}}>Download</button>}
         </div>
         <br />
         <div>
@@ -239,10 +252,10 @@ const AutoCropper = () => {
         </div>
         {(isProcessed && headshots.length > 0) ? <h2 style={{color:"#00B6AC"}}>File processing completed!</h2>
         : (isProcessed && <h2 style={{color:'red'}}>No faces detected.</h2>)}
-        {(errFiles.length > 0) &&
+        {(errNames.length > 0) &&
             <div>Unable to detect a face in the following files:
                 <ul>
-                    {errFiles.map((name,i)=>{
+                    {errNames.map((name,i)=>{
                         return <li key={i}>{name}</li>
                     })}
                 </ul>
