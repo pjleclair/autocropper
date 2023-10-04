@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/autocropper/static/css/main.283ad716.css",
-    "main.js": "/autocropper/static/js/main.2d70a12b.js",
+    "main.js": "/autocropper/static/js/main.461a9cbd.js",
     "index.html": "/autocropper/index.html",
     "main.283ad716.css.map": "/autocropper/static/css/main.283ad716.css.map",
-    "main.2d70a12b.js.map": "/autocropper/static/js/main.2d70a12b.js.map"
+    "main.461a9cbd.js.map": "/autocropper/static/js/main.461a9cbd.js.map"
   },
   "entrypoints": [
     "static/css/main.283ad716.css",
-    "static/js/main.2d70a12b.js"
+    "static/js/main.461a9cbd.js"
   ]
 }
