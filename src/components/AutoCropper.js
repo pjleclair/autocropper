@@ -138,10 +138,10 @@ const AutoCropper = () => {
             const verticalMargin = (imageHeight * verticalMarginpercentage) / 100
 
             //calculate cropping dimensions with margins
-            const targetSize = Math.min(box.width + 2 * horizontalMargin, box.height + 2 * verticalMargin)
+            const targetSize = Math.min(box.width + 2 * horizontalMargin, box.height + 2 * verticalMargin, imageHeight, imageWidth)
             
-            const cropWidth = Math.min(targetSize,imageWidth)
-            const cropHeight = Math.min(targetSize,imageHeight)
+            const cropWidth = targetSize
+            const cropHeight = targetSize
 
             //calculate center of the detected face
             const centerX = box.x + box.width / 2
@@ -153,15 +153,18 @@ const AutoCropper = () => {
 
             const desiredY = Math.max(centerY - (cropHeight * yAxisOffset), 0)
 
+            const validCropWidth = Math.min(cropWidth, imageWidth - x)
+            const validCropHeight = Math.min(cropHeight, imageHeight - desiredY)
+
             const tempCanvas = document.createElement('canvas')
-            tempCanvas.width = cropHeight
-            tempCanvas.height = cropWidth
+            tempCanvas.width = validCropWidth
+            tempCanvas.height = validCropHeight
 
             const tempContext = tempCanvas.getContext('2d')
             tempContext.drawImage(
                 imgRef.current,
-                x, desiredY, cropWidth, cropHeight,
-                0, 0, cropWidth, cropHeight
+                x, desiredY, validCropWidth, validCropHeight,
+                0, 0, validCropWidth, validCropHeight
             )
 
             const headshots = [tempCanvas.toDataURL()]
@@ -273,7 +276,10 @@ const AutoCropper = () => {
                 <h2 style={{color:"#00B6AC"}}>Headshots:</h2>
                 <div style={{
                     border:'5px solid #00B6AC',
-                    borderRadius:'8px'
+                    borderRadius:'8px',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '.5rem'
                 }}>
                     {headshots.map((img,i) => <img key={i} src={img} alt='headshot' style={{width:'250px',height:'250px'}} />)}
                 </div>
