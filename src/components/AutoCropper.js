@@ -153,18 +153,17 @@ const AutoCropper = () => {
 
             const desiredY = Math.max(centerY - (cropHeight * yAxisOffset), 0)
 
-            const validCropWidth = Math.min(cropWidth, imageWidth - x)
-            const validCropHeight = Math.min(cropHeight, imageHeight - desiredY)
+            const validCropDimension = Math.min(cropWidth, imageWidth - x,cropHeight, imageHeight - desiredY)
 
             const tempCanvas = document.createElement('canvas')
-            tempCanvas.width = validCropWidth
-            tempCanvas.height = validCropHeight
+            tempCanvas.width = validCropDimension
+            tempCanvas.height = validCropDimension
 
             const tempContext = tempCanvas.getContext('2d')
             tempContext.drawImage(
                 imgRef.current,
-                x, desiredY, validCropWidth, validCropHeight,
-                0, 0, validCropWidth, validCropHeight
+                x, desiredY, validCropDimension, validCropDimension,
+                0, 0, validCropDimension, validCropDimension
             )
 
             const headshots = [tempCanvas.toDataURL()]
