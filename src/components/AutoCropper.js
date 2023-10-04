@@ -59,14 +59,14 @@ const AutoCropper = () => {
                     } catch (e) {
                         console.log('error in handleImgLoad')
                     }
-                    setHeadShots(prevHeadshots => [...prevHeadshots,...newHeadshots].flat())
+                    setHeadShots(prevHeadshots => [...prevHeadshots,...newHeadshots])
                     if (newHeadshots.length > 0) {
                         const newImgName = (files[fileIndex].name.split('.'))[0]
                         setImgName(prevState => [...prevState,newImgName])
                     } else {
                         const newImgName = (files[fileIndex].name)
                         setErrNames(prevState => [...prevState,newImgName])
-                        setErrFiles(prevErrFiles => [...prevErrFiles,URL.createObjectURL(files[fileIndex])].flat())
+                        setErrFiles(prevErrFiles => [...prevErrFiles,URL.createObjectURL(files[fileIndex])])
                     }
                     //increment file index to process next img (if it exists)
                     setFileIndex(prevFileIndex => prevFileIndex + 1)
@@ -93,6 +93,7 @@ const AutoCropper = () => {
                 resolve(headshots)
             } catch (e) {
                 console.error("Fail at cropPhoto",e)
+                resolve([])
             }
         })
     }
@@ -138,9 +139,9 @@ const AutoCropper = () => {
 
             //calculate cropping dimensions with margins
             const targetSize = Math.min(box.width + 2 * horizontalMargin, box.height + 2 * verticalMargin)
-
-            const cropWidth = targetSize
-            const cropHeight = targetSize
+            
+            const cropWidth = Math.min(targetSize,imageWidth)
+            const cropHeight = Math.min(targetSize,imageHeight)
 
             //calculate center of the detected face
             const centerX = box.x + box.width / 2
@@ -150,11 +151,11 @@ const AutoCropper = () => {
             const x = Math.max(centerX - cropWidth / 2, 0)
             // const y = Math.max(centerY - cropHeight / 2, 0)
 
-            const desiredY = Math.max(centerY - cropHeight * yAxisOffset, 0)
+            const desiredY = Math.max(centerY - (cropHeight * yAxisOffset), 0)
 
             const tempCanvas = document.createElement('canvas')
-            tempCanvas.width = cropWidth
-            tempCanvas.height = cropHeight
+            tempCanvas.width = cropHeight
+            tempCanvas.height = cropWidth
 
             const tempContext = tempCanvas.getContext('2d')
             tempContext.drawImage(
@@ -169,7 +170,6 @@ const AutoCropper = () => {
             console.log(
                 `Error! No face detected in ${currentImg}`
             )
-            
             return []
         }
     }
@@ -180,7 +180,6 @@ const AutoCropper = () => {
         //save img
         let i = 0
         for (let img of headshots) {
-            console.log(img)
             const link = document.createElement('a')
             link.href = img
             link.download = 'cropped-'+imgName[i]
@@ -276,7 +275,7 @@ const AutoCropper = () => {
                     border:'5px solid #00B6AC',
                     borderRadius:'8px'
                 }}>
-                    {headshots.map((img,i) => <img key={i} src={img} alt='headshot' style={{width:'250px',height:'250px'}}/>)}
+                    {headshots.map((img,i) => <img key={i} src={img} alt='headshot' style={{width:'250px',height:'250px'}} />)}
                 </div>
             </div>
         }
