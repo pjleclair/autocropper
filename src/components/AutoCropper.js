@@ -20,7 +20,7 @@ const AutoCropper = () => {
     const [isProcessed, setIsProcessed] = useState(false)
     const [headshots, setHeadShots] = useState([])
     const [marginVals, setMarginVals] = useState(25)
-    const [yAxisOffset, setYAxisOffset] = useState(.6)
+    const [yAxisOffset, setYAxisOffset] = useState(60)
 
     //initialize canvas & image refs
     const canvasRef = useRef()
@@ -129,6 +129,7 @@ const AutoCropper = () => {
         //if a face is detected, crop and return headshots
         if (detections !== undefined) {
 
+            //init headshot framing variables
             const box = detections.box
 
             const horizontalMarginPercentage = marginVals
@@ -155,7 +156,7 @@ const AutoCropper = () => {
             const x = Math.max(centerX - cropWidth / 2, 0)
             // const y = Math.max(centerY - cropHeight / 2, 0)
 
-            const desiredY = Math.max(centerY - (cropHeight * yAxisOffset), 0)
+            const desiredY = Math.max(centerY - (cropHeight * (yAxisOffset/100)), 0)
 
             const validCropDimension = Math.min(cropWidth, imageWidth - x,cropHeight, imageHeight - desiredY)
 
@@ -181,9 +182,10 @@ const AutoCropper = () => {
     }
 
     const savePhotos = async (headshots,errFiles) => {
-        //iterate through all headshots saved in state
-        //take string and append "-cropped" to filename
-        //save img
+        //iterate through all images saved in state and add to .zip
+        //for headshots, append "cropped-" to filename
+        //for errFiles, append "failed-" to filename
+        //save images to .zip called "headshots"
 
         let zip = new JSZip()
 
@@ -248,7 +250,7 @@ const AutoCropper = () => {
                         name="marginVals" value={marginVals} id='margin' />
                 </div>
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.5rem'}}>
-                    <div>Y-Axis Offset:</div>
+                    <div>Vertical Framing:</div>
                     <input onChange={e => setYAxisOffset(e.target.value)}
                         name="yAxisOffset" value={yAxisOffset} id='margin' />
                 </div>
@@ -260,7 +262,6 @@ const AutoCropper = () => {
         }}>
             <img ref={imgRef} src={currentImg} style={{display:'none'}} crossOrigin="anonymous" alt='original'/>
             <canvas ref={canvasRef} style={{position:'absolute',display:'none'}}/>
-            {/* after confirming crop is working: style={{display:'none'}} */}
         </div>
         {(isProcessed && headshots.length > 0) ? <h2 style={{color:"#00B6AC"}}>File processing completed!</h2>
         : (isProcessed && <h2 style={{color:'red'}}>No faces detected.</h2>)}
