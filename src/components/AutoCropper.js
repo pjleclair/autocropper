@@ -4,6 +4,10 @@ import {useState, useEffect, useRef} from "react"
 //import faceapi
 import * as faceapi from "face-api.js"
 
+//import zip & save packages
+import JSZip from "jszip"
+import { saveAs } from "file-saver"
+
 const AutoCropper = () => {
 
     //initialize state
@@ -180,26 +184,29 @@ const AutoCropper = () => {
         //iterate through all headshots saved in state
         //take string and append "-cropped" to filename
         //save img
+
+        let zip = new JSZip()
+
         let i = 0
         for (let img of headshots) {
-            const link = document.createElement('a')
-            link.href = img
-            link.download = 'cropped-'+imgName[i]
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
+            const response = await fetch(img)
+            const blob = await response.blob()
+            const fileName = 'cropped-'+imgName[i]+'.png'
+            zip.file(fileName,blob,{binary: true})
             i++
         }
         i = 0
         for (let img of errFiles) {
-            const link = document.createElement('a')
-            link.href = img
-            link.download = 'failed-'+errNames[i]
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
+            const response = await fetch(img)
+            const blob = await response.blob()
+            const fileName = 'failed-'+errNames[i]+'.png'
+            zip.file(fileName,blob,{binary: true})
             i++
         }
+
+        zip.generateAsync({type: 'blob'}).then(content => {
+            saveAs(content,"headshots.zip")
+        })
     }
 
     const processImages = async () => {
