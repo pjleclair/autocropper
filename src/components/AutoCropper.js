@@ -15,7 +15,7 @@ const AutoCropper = () => {
     const [errFiles, setErrFiles] = useState([])
     const [isProcessed, setIsProcessed] = useState(false)
     const [headshots, setHeadShots] = useState([])
-    const [marginVals, setMarginVals] = useState({vertical:15,horizontal:25})
+    const [marginVals, setMarginVals] = useState(25)
     const [yAxisOffset, setYAxisOffset] = useState(.6)
 
     //initialize canvas & image refs
@@ -127,8 +127,8 @@ const AutoCropper = () => {
 
             const box = detections.box
 
-            const horizontalMarginPercentage = marginVals.horizontal
-            const verticalMarginpercentage = marginVals.vertical
+            const horizontalMarginPercentage = marginVals
+            const verticalMarginpercentage = marginVals
 
             const imageWidth = imgRef.current.width
             const imageHeight = imgRef.current.height
@@ -236,14 +236,9 @@ const AutoCropper = () => {
         <div>
             <div style={{display: 'flex', gap: '1rem'}}>
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.5rem'}}>
-                    <div>Horizontal Margin:</div>
-                    <input onChange={e => setMarginVals({...marginVals, horizontal: e.target.value})}
-                        name="marginVals.horizontal" value={marginVals.horizontal} id='margin' />
-                </div>
-                <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.5rem'}}>
-                    <div>Vertical Margin:</div>
-                    <input onChange={e => setMarginVals({...marginVals, vertical: e.target.value})}
-                        name="marginVals.vertical" value={marginVals.vertical} id='margin' />
+                    <div>Margin:</div>
+                    <input onChange={e => setMarginVals(e.target.value)}
+                        name="marginVals" value={marginVals} id='margin' />
                 </div>
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.5rem'}}>
                     <div>Y-Axis Offset:</div>
